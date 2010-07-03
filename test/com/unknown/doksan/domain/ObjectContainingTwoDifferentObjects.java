@@ -1,4 +1,4 @@
-package com.unknown.heo.domain;
+package com.unknown.doksan.domain;
 
 public class ObjectContainingTwoDifferentObjects {
     private OneStringFieldObject _oneStringFieldObject;

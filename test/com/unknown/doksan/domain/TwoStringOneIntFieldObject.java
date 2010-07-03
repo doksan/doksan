@@ -1,4 +1,4 @@
-package com.unknown.heo.domain;
+package com.unknown.doksan.domain;
 
 public class TwoStringOneIntFieldObject {
     private String _stringFieldA;

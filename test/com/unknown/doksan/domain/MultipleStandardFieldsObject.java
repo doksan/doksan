@@ -1,4 +1,4 @@
-package com.unknown.heo.domain;
+package com.unknown.doksan.domain;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.unknown.heo;
+package com.unknown.doksan;
 
 import java.lang.reflect.Type;
 import java.util.Date;

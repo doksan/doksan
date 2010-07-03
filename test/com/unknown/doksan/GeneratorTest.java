@@ -1,9 +1,9 @@
-package com.unknown.heo;
+package com.unknown.doksan;
 
 
 
 
-import com.unknown.heo.domain.*;
+import com.unknown.doksan.domain.*;
 import org.junit.Test;
 
 import java.util.ArrayList;

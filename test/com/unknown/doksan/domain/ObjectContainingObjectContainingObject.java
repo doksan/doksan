@@ -1,4 +1,4 @@
-package com.unknown.heo.domain;
+package com.unknown.doksan.domain;
 
 public class ObjectContainingObjectContainingObject {
     private ObjectContainingObject _objectContainingObject;
