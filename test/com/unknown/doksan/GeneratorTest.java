@@ -1,8 +1,5 @@
 package com.unknown.doksan;
 
-
-
-
 import com.unknown.doksan.domain.*;
 import org.junit.Test;
 
@@ -16,12 +13,12 @@ import static org.junit.Assert.assertTrue;
 
 public class GeneratorTest {
 
-    private Generator _generator = new Generator();
+    private FieldUtils _fieldUtils = new FieldUtils();
 
     @Test
     public void assertionsForObjectWithNoFields() throws Exception {
         NoFieldsObject testObject = new NoFieldsObject();
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
         assertEquals(0, assertions.size());
     }
 
@@ -30,7 +27,7 @@ public class GeneratorTest {
         String stringFieldA = GeneratorTestHelper.getRandomString();
         OneStringFieldObject testObject = GeneratorTestHelper.buildOneStringFieldTestObject(stringFieldA);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
         assertEquals(1, assertions.size());
 
         String assertion = assertions.get(0);
@@ -44,7 +41,7 @@ public class GeneratorTest {
 
         TwoStringFieldObject testObject = GeneratorTestHelper.buildTwoStringFieldTestObject(stringFieldA, stringFieldB);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(2, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("twoStringFieldObject.stringFieldA", stringFieldA)));
@@ -59,7 +56,7 @@ public class GeneratorTest {
 
         TwoStringOneIntFieldObject testObject = GeneratorTestHelper.buildTwoStringOneIntFieldTestObject(stringFieldA, stringFieldB, intFieldA);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(3, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("twoStringOneIntFieldObject.stringFieldA", stringFieldA)));
@@ -78,7 +75,7 @@ public class GeneratorTest {
 
         MultipleStandardFieldsObject testObject = GeneratorTestHelper.buildMultipleStandardFieldsObject(stringFieldA, stringFieldB, intFieldA, intFieldB, longFieldA, dateFieldA);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(6, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("multipleStandardFieldsObject.stringFieldA", stringFieldA)));
@@ -100,7 +97,7 @@ public class GeneratorTest {
 
         ObjectExtendingAnotherObject testObject = GeneratorTestHelper.buildObjectExtendingAnotherObject(stringFieldA, stringFieldB, stringFieldC, stringFieldD, intFieldA, intFieldC);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(6, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("objectExtendingAnotherObject.stringFieldA", stringFieldA)));
@@ -119,7 +116,7 @@ public class GeneratorTest {
 
         OneStringListObject testObject = GeneratorTestHelper.buildOneStringListFieldObject(stringItemA, stringItemB, stringItemC);
 
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(3, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("oneStringListObject.stringListFieldA[0]", stringItemA)));
@@ -148,7 +145,7 @@ public class GeneratorTest {
         listFieldB.add(listFieldBStringB);
 
         MultipleStandardAndListFieldsObject testObject = GeneratorTestHelper.buildMultipleStandardAndListFieldsObject(stringFieldA, stringFieldB, intFieldA, listFieldA, listFieldB);
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, null);
 
         assertEquals(8, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("multipleStandardAndListFieldsObject.stringFieldA", stringFieldA)));
@@ -170,8 +167,10 @@ public class GeneratorTest {
 
         ObjectContainingOneObjectAndMiscFields testObject = GeneratorTestHelper.buildObjectContainingOneObjectAndMiscFields(objectAstringFieldA, objectBStringFieldA, objectBStringFieldB, objectBIntFieldA);
 
-        _generator.addClass(OneStringFieldObject.class);
-        List<String> assertions = _generator.buildAssertions(testObject);
+
+        List<Class> classesOfInterest = new ArrayList<Class>();
+        classesOfInterest.add(OneStringFieldObject.class);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, classesOfInterest);
         assertEquals(4, assertions.size());
 
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("objectContainingOneObjectAndMiscFields.oneStringFieldObject.stringFieldA", objectAstringFieldA)));
@@ -189,9 +188,11 @@ public class GeneratorTest {
 
         ObjectContainingTwoDifferentObjects testObject = GeneratorTestHelper.buildObjectContainingTwoDifferentObjects(objectAstringFieldA, objectBStringFieldA, objectBStringFieldB, objectBIntFieldA);
 
-        _generator.addClass(OneStringFieldObject.class);
-        _generator.addClass(TwoStringOneIntFieldObject.class);
-        List<String> assertions = _generator.buildAssertions(testObject);
+
+        List<Class> classesOfInterest = new ArrayList<Class>();
+classesOfInterest.add(OneStringFieldObject.class);
+        classesOfInterest.add(TwoStringOneIntFieldObject.class);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, classesOfInterest);
 
         assertEquals(4, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("objectContainingTwoDifferentObjects.oneStringFieldObject.stringFieldA", objectAstringFieldA)));
@@ -206,9 +207,10 @@ public class GeneratorTest {
 
         ObjectContainingObjectContainingObject testObject = GeneratorTestHelper.buildObjectContainingObjectContainingObject(objectAstringFieldA);
 
-        _generator.addClass(ObjectContainingObject.class);
-        _generator.addClass(OneStringFieldObject.class);
-        List<String> assertions = _generator.buildAssertions(testObject);
+        List<Class> classesOfInterest = new ArrayList<Class>();
+        classesOfInterest.add(ObjectContainingObject.class);
+        classesOfInterest.add(OneStringFieldObject.class);
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(testObject, classesOfInterest);
 
         assertEquals(1, assertions.size());
         assertTrue(assertions.contains(GeneratorTestHelper.buildAssertionString("objectContainingObjectContainingObject.objectContainingObject.oneStringFieldObject.stringFieldA", objectAstringFieldA)));
@@ -216,14 +218,14 @@ public class GeneratorTest {
 
     @Test
     public void canHandleObjectsContainingNullFields() throws Exception {
-        List<String> assertions = _generator.buildAssertions(new OneStringFieldObject());
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(new OneStringFieldObject(), null);
         assertEquals(1, assertions.size());
         assertEquals(GeneratorTestHelper.buildAssertionString("oneStringFieldObject.stringFieldA", (String) null), assertions.get(0));
     }
 
     @Test
     public void canHandleDateFields() throws Exception {
-        List<String> assertions = _generator.buildAssertions(
+        List<String> assertions = FieldAssertionGenerator.buildAssertions(
                 new Object() {
                     Date _testDate = new Date(5555L);
 
@@ -231,7 +233,7 @@ public class GeneratorTest {
                         return _testDate;
                     }
                 }
-        );
+        , null);
         assertEquals(1, assertions.size());
         assertEquals("AssertExpression   \".testDate == 'Thu Jan 01 01:00:05 GMT 1970'\"", assertions.get(0));
     }
@@ -255,4 +257,5 @@ public class GeneratorTest {
 //booleans that are is instead of get (scan for both method names?)
 //scan for non-void return type methods instead of get*
     // make sure all methods are selects, sequences, etc.
+// exception handling is dodgy
 }
