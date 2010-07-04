@@ -7,42 +7,42 @@ import java.util.*;
 public class FieldUtils {
     private static final String GETTER_METHOD_PREFIX = "get";
 
-    public static List<Assertion> buildAssertionObjects2(Object object, List<Class> classes) throws Exception {
+    public static List<Field> getFields(Object object, List<Class> classesToScan) throws Exception {
         List<String> getterMethodNames = ReflectionUtils.findMethodNamesByPartialName(object, GETTER_METHOD_PREFIX);
-        return buildAssertionsFromGetterMethodNames(object, getterMethodNames, null, classes);
+        return buildAssertionsFromGetterMethodNames(object, getterMethodNames, null, classesToScan);
     }
 
-    private static List<Assertion> buildAssertionsFromGetterMethodNames(Object object, List<String> getterMethodNames, String parentClassName, List<Class> classes) throws Exception {
-        ArrayList<Assertion> assertions = new ArrayList<Assertion>();
+    private static List<Field> buildAssertionsFromGetterMethodNames(Object object, List<String> getterMethodNames, String parentClassName, List<Class> classesToScan) throws Exception {
+        ArrayList<Field> fields = new ArrayList<Field>();
         for (String getterMethodName : getterMethodNames)
-            buildAssertion(object, parentClassName, assertions, getterMethodName, classes);
-        return assertions;
+            buildAssertion(object, parentClassName, fields, getterMethodName, classesToScan);
+        return fields;
     }
 
-    private static void buildAssertion(Object object, String parentClassName, ArrayList<Assertion> assertions, String getterMethodName, List<Class> classes) throws Exception {
+    private static void buildAssertion(Object object, String parentClassName, ArrayList<Field> fields, String getterMethodName, List<Class> classesToScan) throws Exception {
         Method method = ReflectionUtils.findMethodByName(object, getterMethodName);
         Object fieldValue = ReflectionUtils.invokeMethod(object, method);
         String fieldName = ReflectionUtils.getFieldNameFromMethodName(getterMethodName);
-        handleAssertionTypes(assertions, method.getReturnType(), getClassName(parentClassName, ReflectionUtils.getClassName(object)), fieldValue, fieldName, classes);
+        handleAssertionTypes(fields, method.getReturnType(), getClassName(parentClassName, ReflectionUtils.getClassName(object)), fieldValue, fieldName, classesToScan);
     }
 
-    private static void handleAssertionTypes(ArrayList<Assertion> assertions, Class<?> returnType, String className, Object fieldValue, String fieldName, List<Class> classes) throws Exception {
-        if (fieldValue != null && classes != null && classes.contains(fieldValue.getClass())) {
+    private static void handleAssertionTypes(ArrayList<Field> fields, Class<?> returnType, String className, Object fieldValue, String fieldName, List<Class> classesToScan) throws Exception {
+        if (fieldValue != null && classesToScan != null && classesToScan.contains(fieldValue.getClass())) {
             List<String> getterMethodNames = ReflectionUtils.findMethodNamesByPartialName(fieldValue, GETTER_METHOD_PREFIX);
-            assertions.addAll(buildAssertionsFromGetterMethodNames(fieldValue, getterMethodNames, className, classes));
+            fields.addAll(buildAssertionsFromGetterMethodNames(fieldValue, getterMethodNames, className, classesToScan));
         }
         else if (fieldValue instanceof Collection)
-            buildAssertionsFromCollection(assertions, className, fieldValue, fieldName);
+            buildAssertionsFromCollection(fields, className, fieldValue, fieldName);
         else
-            buildAssertionFromStandardType(assertions, returnType, className, fieldValue, fieldName);
+            buildAssertionFromStandardType(fields, returnType, className, fieldValue, fieldName);
     }
 
-    private static void buildAssertionsFromCollection(ArrayList<Assertion> assertions, String className, Object fieldValue, String fieldName) {
+    private static void buildAssertionsFromCollection(ArrayList<Field> fields, String className, Object fieldValue, String fieldName) {
         Iterator iterator = ((Collection) fieldValue).iterator();
         int index = 0;
         while (iterator.hasNext()) {
             Object itemFieldValue = iterator.next();
-            assertions.add(new Assertion(className, buildArrayIndexString(fieldName, index++), itemFieldValue, itemFieldValue.getClass()));
+            fields.add(new Field(className, buildArrayIndexString(fieldName, index++), itemFieldValue, itemFieldValue.getClass()));
         }
     }
 
@@ -50,8 +50,8 @@ public class FieldUtils {
         return MessageFormat.format("{0}[{1}]", fieldName, index);
     }
 
-    private static void buildAssertionFromStandardType(ArrayList<Assertion> assertions, Class<?> returnType, String className, Object fieldValue, String fieldName) {
-        assertions.add(new Assertion(className, fieldName, fieldValue, returnType));
+    private static void buildAssertionFromStandardType(ArrayList<Field> fields, Class<?> returnType, String className, Object fieldValue, String fieldName) {
+        fields.add(new Field(className, fieldName, fieldValue, returnType));
     }
 
     private static String getClassName(String parentClassName, String className) {

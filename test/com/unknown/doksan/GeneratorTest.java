@@ -13,8 +13,6 @@ import static org.junit.Assert.assertTrue;
 
 public class GeneratorTest {
 
-    private FieldUtils _fieldUtils = new FieldUtils();
-
     @Test
     public void assertionsForObjectWithNoFields() throws Exception {
         NoFieldsObject testObject = new NoFieldsObject();
